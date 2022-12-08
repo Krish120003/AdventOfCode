@@ -143,44 +143,22 @@ data = [[int(f) for f in e] for e in x.strip().split('\n')]
 
 visible = 0
 
-
 for i in range(0, len(data)):
     for j in range(0, len(data)):
         cell = data[i][j]
         # get a slice of everything to the left
         left = data[i][0:j]
-        if not left:
-            visible += 1
-            continue
-        elif left and max(left) < cell:
-            visible += 1
-            continue
-        # get a slice of everything to the right
         right = data[i][j+1:]
-        if not right:
-            visible += 1
-            continue
-        if right and max(right) < cell:
-            visible += 1
-            continue
-
-        # get a slice of everything above
         above = [data[k][j] for k in range(0, i)]
-        if not above:
-            visible += 1
-            continue
-
-        if above and max(above) < cell:
-            visible += 1
-            continue
-        # get a slice of everything below
         below = [data[k][j] for k in range(i+1, len(data))]
-        if not below:
+
+        # edges
+        if not left or not right or not above or not below:
             visible += 1
-            continue
-        if below and max(below) < cell:
+
+        # visible
+        elif any(map(lambda x: max(x) < cell, [left, right, above, below])):
             visible += 1
-            continue
 
 print(visible)
 
@@ -225,6 +203,10 @@ for i in range(0, len(data)):
         cell = data[i][j]
         # get a slice of everything to the left
         left = data[i][0:j]
+        right = data[i][j+1:]
+        above = [data[k][j] for k in range(0, i)]
+        below = [data[k][j] for k in range(i+1, len(data))]
+
         # find how many trees it can see to the left
         left_score = 0
         if left:
@@ -236,7 +218,7 @@ for i in range(0, len(data)):
                     left_score += 1
                     break
         right_score = 0
-        right = data[i][j+1:]
+
         if right:
             for l in right:
                 if l < cell:
@@ -247,7 +229,7 @@ for i in range(0, len(data)):
                     break
 
         above_score = 0
-        above = [data[k][j] for k in range(0, i)]
+
         if above:
             for l in reversed(above):
                 if l < cell:
@@ -258,7 +240,7 @@ for i in range(0, len(data)):
                     break
 
         below_score = 0
-        below = [data[k][j] for k in range(i+1, len(data))]
+
         if below:
             for l in below:
                 if l < cell:
