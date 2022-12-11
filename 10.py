@@ -512,50 +512,22 @@ strength = 0
 
 # Render the image given by your program. What eight capital letters appear on your CRT?
 
-
+cycles = 0
+X = 1
 currentCRTLine = ""
 
+
+def addThing():
+    global cycles, currentCRTLine
+    cycles += 1
+    currentCRTLine += "#" if len(currentCRTLine) in (X-1, X, X+1) else "."
+    if cycles % 40 == 0:
+        print(currentCRTLine)
+        currentCRTLine = ""
+
+
 for index, i in enumerate(data):
+    addThing()
     if i.startswith("addx"):
-
-        # after the first cycle, add 1
-        cycles += 1
-
-        # print(cycles, X, strength)
-
-        if len(currentCRTLine) in (X-1, X, X+1):
-            currentCRTLine += "#"
-        else:
-            currentCRTLine += "."
-
-        if cycles % 40 == 0:
-            print(currentCRTLine)
-            currentCRTLine = ""
-
-        # done 2 cycles
-        cycles += 1
-        if len(currentCRTLine) in (X-1, X, X+1):
-            currentCRTLine += "#"
-        else:
-            currentCRTLine += "."
-
-        if cycles % 40 == 0:
-            print(currentCRTLine)
-            currentCRTLine = ""
-
+        addThing()
         X += int(i.split(" ")[1])
-
-    elif i.startswith("noop"):
-        cycles += 1
-        if len(currentCRTLine) in (X-1, X, X+1):
-            currentCRTLine += "#"
-        else:
-            currentCRTLine += "."
-
-        if cycles % 40 == 0:
-            print(currentCRTLine)
-            currentCRTLine = ""
-
-        if cycles in [40, 80, 120, 160, 200, 240]:
-            # print(cycles, X, strength)
-            strength += X * cycles
