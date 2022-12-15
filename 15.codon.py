@@ -1,3 +1,4 @@
+
 from math import *
 
 # You feel the ground rumble again as the distress signal leads you to a large network of subterranean tunnels. You don't have time to search them all, but you don't need to: your pack contains a set of deployable sensors that you imagine were originally built to locate lost Elves.
@@ -143,10 +144,13 @@ Sensor at x=3009537, y=3292368: closest beacon is at x=3184941, y=3924923
 """
 
 x = TEST
+space = 20
+
 x = PROD
+space = 4000000
 
 data = x.strip().split("\n")
-y = 10
+# y = 10
 y = 2000000
 
 
@@ -154,8 +158,10 @@ def dist(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
 
-cannot = set()
-beacons = set()
+# cannot = set()
+# beacons = set()
+
+sensors = set()
 
 for line in data:
     first_half = line.split(":")[0]
@@ -164,14 +170,68 @@ for line in data:
     x2, y2 = [int(x) for x in second_half.split("x=")[1].split(", y=")]
 
     # find distance between sensor and beacon
-    d = dist(x1, y1, x2, y2)
+    # d = dist(x1, y1, x2, y2)
 
-    # find all points at y = 10 that are within d of sensor
-    for i in range(x1 - d - 1_000_000, x1 + d + 1_000_000):
-        if dist(i, y, x1, y1) <= d:
-            cannot.add((i, y))
+    # # find all points at y = 10 that are within d of sensor
+    # for i in range(x1 - d, x1 + d):
+    #     for j in range(y1 - d, y1 + d):
+    #         if dist(i, j, x1, y1) <= d:
+    #             cannot.add((i, j))
 
-    # remove beacon from set
-    beacons.add((x2, y2))
+    # # remove beacon from set
+    # beacons.add((x2, y2))
+    sensor_reach = dist(x1, y1, x2, y2)
+    sensors.add((x1, y1, x2, y2, sensor_reach))
 
-print(len(cannot - beacons))
+
+# --- Part Two ---
+# Your handheld device indicates that the distress signal is coming from a beacon nearby. The distress beacon is not detected by any sensor, but the distress beacon must have x and y coordinates each no lower than 0 and no larger than 4000000.
+
+# To isolate the distress beacon's signal, you need to determine its tuning frequency, which can be found by multiplying its x coordinate by 4000000 and then adding its y coordinate.
+
+# In the example above, the search space is smaller: instead, the x and y coordinates can each be at most 20. With this reduced search area, there is only a single position that could have a beacon: x=14, y=11. The tuning frequency for this distress beacon is 56000011.
+
+# Find the only possible position for the distress beacon. What is its tuning frequency?
+
+
+# do a line search
+# @par(num_threads=12, ordered=True)
+
+# sensors = [(0, 0, 2, 2, 1)]
+
+edges = set()
+
+
+# @par
+for sensor in sensors:
+    x, y, _, _, reach = sensor
+
+    for i in range(x - reach - 1, x + reach + 2):
+
+        offset = max(0, (reach + 1) - abs(i - x))
+
+        left = max(0, y - offset)
+        right = min(y + offset, 4000000)
+
+        edges.add((i, left))
+        edges.add((i, right))
+
+    print(len(edges))
+# check if any edge is not in range of any sensor
+
+
+# @par
+for edge in edges:
+    x, y = edge
+    if x < 0 or x > space:
+        continue
+    if y > space or y < 0:
+        continue
+    for sensor in sensors:
+        x1, y1, x2, y2, reach = sensor
+        if dist(x, y, x1, y1) <= reach:
+            break
+    else:
+        print("Found", x, y)
+        print(x * 4000000 + y)
+        exit(0)
