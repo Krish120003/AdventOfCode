@@ -1,3 +1,11 @@
+from icecream import ic
+from copy import copy, deepcopy
+from tqdm import tqdm
+from functools import lru_cache
+
+# I learned a lot from
+# https://nickymeuleman.netlify.app/garden/aoc2022-day16#part-2
+# on how to approach part 2
 
 # The sensors have led you to the origin of the distress signal: yet another handheld device, just like the one the Elves gave you. However, you don't see any Elves around; instead, the device is surrounded by elephants! They must have gotten lost in these tunnels, and one of the elephants apparently figured out how to turn on the distress signal.
 
@@ -144,6 +152,7 @@
 
 # from pprint import pprint as print
 import sys
+
 TEST = """
 Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
@@ -158,6 +167,66 @@ Valve JJ has flow rate=21; tunnel leads to valve II
 """
 
 PROD = """
+Valve DR has flow rate=22; tunnels lead to valves DC, YA
+Valve IO has flow rate=14; tunnels lead to valves GE, CK, HY, XB
+Valve XY has flow rate=0; tunnels lead to valves IP, AR
+Valve UQ has flow rate=0; tunnels lead to valves XU, PD
+Valve FO has flow rate=0; tunnels lead to valves DL, NC
+Valve PU has flow rate=0; tunnels lead to valves ZJ, AN
+Valve MK has flow rate=0; tunnels lead to valves ZS, SB
+Valve HN has flow rate=0; tunnels lead to valves AA, DV
+Valve XF has flow rate=0; tunnels lead to valves XB, AA
+Valve OD has flow rate=13; tunnels lead to valves ZS, AF, SY, QQ, AR
+Valve GE has flow rate=0; tunnels lead to valves KR, IO
+Valve UF has flow rate=18; tunnels lead to valves QQ, AN, YE, GY
+Valve WK has flow rate=19; tunnel leads to valve PQ
+Valve PQ has flow rate=0; tunnels lead to valves WK, CW
+Valve XU has flow rate=0; tunnels lead to valves DV, UQ
+Valve SH has flow rate=0; tunnels lead to valves IP, AA
+Valve SY has flow rate=0; tunnels lead to valves ZJ, OD
+Valve OU has flow rate=0; tunnels lead to valves CK, DL
+Valve IP has flow rate=8; tunnels lead to valves CY, ML, YI, XY, SH
+Valve XZ has flow rate=0; tunnels lead to valves AM, PD
+Valve ZU has flow rate=0; tunnels lead to valves CW, SB
+Valve DC has flow rate=0; tunnels lead to valves CF, DR
+Valve QY has flow rate=0; tunnels lead to valves CW, MQ
+Valve XB has flow rate=0; tunnels lead to valves IO, XF
+Valve AF has flow rate=0; tunnels lead to valves PD, OD
+Valve GY has flow rate=0; tunnels lead to valves UF, ZC
+Valve ZC has flow rate=0; tunnels lead to valves GY, CW
+Valve ZJ has flow rate=25; tunnels lead to valves SY, PU
+Valve NC has flow rate=6; tunnels lead to valves HY, ML, NJ, AT, FO
+Valve DS has flow rate=0; tunnels lead to valves AT, DV
+Valve DV has flow rate=7; tunnels lead to valves FD, KR, HN, DS, XU
+Valve HY has flow rate=0; tunnels lead to valves NC, IO
+Valve WF has flow rate=0; tunnels lead to valves NJ, AA
+Valve CK has flow rate=0; tunnels lead to valves IO, OU
+Valve YE has flow rate=0; tunnels lead to valves CY, UF
+Valve LA has flow rate=0; tunnels lead to valves DL, ZM
+Valve QQ has flow rate=0; tunnels lead to valves OD, UF
+Valve AM has flow rate=0; tunnels lead to valves XZ, SB
+Valve AN has flow rate=0; tunnels lead to valves UF, PU
+Valve CL has flow rate=16; tunnels lead to valves YA, LD
+Valve CF has flow rate=12; tunnel leads to valve DC
+Valve FD has flow rate=0; tunnels lead to valves DV, DL
+Valve QU has flow rate=0; tunnels lead to valves LD, PD
+Valve AT has flow rate=0; tunnels lead to valves DS, NC
+Valve SB has flow rate=24; tunnels lead to valves MK, AM, ZU
+Valve YI has flow rate=0; tunnels lead to valves DL, IP
+Valve ZM has flow rate=0; tunnels lead to valves AA, LA
+Valve LD has flow rate=0; tunnels lead to valves CL, QU
+Valve AR has flow rate=0; tunnels lead to valves OD, XY
+Valve DL has flow rate=5; tunnels lead to valves FO, LA, YI, OU, FD
+Valve MQ has flow rate=0; tunnels lead to valves QY, PD
+Valve PD has flow rate=9; tunnels lead to valves MQ, QU, XZ, AF, UQ
+Valve KR has flow rate=0; tunnels lead to valves GE, DV
+Valve CY has flow rate=0; tunnels lead to valves YE, IP
+Valve AA has flow rate=0; tunnels lead to valves SH, XF, ZM, HN, WF
+Valve NJ has flow rate=0; tunnels lead to valves NC, WF
+Valve YA has flow rate=0; tunnels lead to valves CL, DR
+Valve ML has flow rate=0; tunnels lead to valves NC, IP
+Valve CW has flow rate=15; tunnels lead to valves QY, PQ, ZC, ZU
+Valve ZS has flow rate=0; tunnels lead to valves MK, OD
 """
 
 x = TEST
@@ -184,24 +253,116 @@ for line in x:
         edges[name].append(v.strip())
 
     temp = edges[name][:]
-    edges[name].append(name + "#")
-    edges[name+"#"] = temp
 
-# greedily open valves that have the highest flow rate
-# then open the next highest flow rate valve
 
-path = []
-path.append("AA")
+@lru_cache()
+def distance_to_all(start):
+    global edges
+    G = edges
+    dist = {}
+    for v in G:
+        dist[v] = sys.maxsize
 
-opened = set()
+    dist[start] = 0
 
-while len(path) < 30:
-    # find the closest valve that is not already opened
-    next_valve = None
-    current = path[-1]
-    for v in edges[current]:
-        if v not in opened and v != current + "#":
-            next_valve = v
-            break
+    q = [start]
 
-    path.append(next_valve)
+    while len(q) > 0:
+        current = q.pop(0)
+        for v in G[current]:
+            # this line is very important
+            # it makes sure we don't revisit a node
+            # that we have already visited
+            # by checking if the distance to the node
+            # is already smaller than the current distance
+            if dist[v] > dist[current] + 1:
+                dist[v] = dist[current] + 1
+                q.append(v)
+
+    return dist
+
+
+TIME = 30
+
+all_values = set(edges.keys())
+
+for k, v in flows.items():
+    if v == 0:
+        all_values.remove(k)
+
+# simulate all possible paths
+start_state = (
+    "AA",  # current node
+    0,  # time elapsed
+    0,  # pressure released so far
+    all_values,  # closed valves
+)
+
+q = [start_state]
+
+best = 0
+ops = 0
+skipped = 0
+already_checked = set()
+
+
+@lru_cache()
+def sorted_state(state: tuple):
+    return tuple(sorted(state))
+
+
+most_released_for_opening = {}
+
+while q:
+    ops += 1
+    if ops % 10000 == 0:
+        ic(len(q), best, ops, skipped)
+
+    current, time, pressure, closed = q.pop(0)
+
+    temp = sorted_state(tuple(closed))
+    most_released_for_opening[temp] = max(
+        most_released_for_opening.get(temp, 0), pressure
+    )
+
+    if (time, pressure, tuple(closed)) in already_checked:
+        skipped += 1
+        continue
+    else:
+        already_checked.add((time, pressure, tuple(closed)))
+
+    if time >= TIME:
+        continue
+
+    best = max(best, pressure)
+
+    if len(closed) == 0:
+        continue
+
+    # we want to always go to one of the valves that is closed
+    distance_to_all_from_current = distance_to_all(current)
+    for valve in closed:
+        time_to_get_there = distance_to_all_from_current[valve]
+
+        new_time = time + time_to_get_there + 1  # the +1 is the time to open it
+        new_pressure = pressure + flows[valve] * (TIME - new_time)
+        q.append(
+            (
+                valve,
+                new_time,
+                new_pressure,
+                closed.difference({valve}),
+            )
+        )
+
+    # ic(q)
+    # input()
+
+# print()
+ic(ops)
+print(best)
+#
+
+
+# We have 2 cursors basically
+#
