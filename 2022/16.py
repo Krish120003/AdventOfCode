@@ -230,7 +230,7 @@ Valve ZS has flow rate=0; tunnels lead to valves MK, OD
 """
 
 x = TEST
-# x = PROD
+x = PROD
 
 x = x.strip().split("\n")
 
@@ -282,7 +282,7 @@ def distance_to_all(start):
     return dist
 
 
-TIME = 30
+TIME = 26
 
 all_values = set(edges.keys())
 
@@ -295,7 +295,7 @@ start_state = (
     "AA",  # current node
     0,  # time elapsed
     0,  # pressure released so far
-    all_values,  # closed valves
+    set(),  # open valves
 )
 
 q = [start_state]
@@ -318,30 +318,30 @@ while q:
     if ops % 10000 == 0:
         ic(len(q), best, ops, skipped)
 
-    current, time, pressure, closed = q.pop(0)
+    current, time, pressure, open = q.pop(0)
 
-    temp = sorted_state(tuple(closed))
-    most_released_for_opening[temp] = max(
-        most_released_for_opening.get(temp, 0), pressure
+    most_released_for_opening[(tuple(open))] = max(
+        most_released_for_opening.get((tuple(open)), 0),
+        pressure,
     )
 
-    if (time, pressure, tuple(closed)) in already_checked:
+    if (time, pressure, tuple(open)) in already_checked:
         skipped += 1
         continue
     else:
-        already_checked.add((time, pressure, tuple(closed)))
+        already_checked.add((time, pressure, tuple(open)))
 
     if time >= TIME:
         continue
 
     best = max(best, pressure)
 
-    if len(closed) == 0:
+    if len(open) == len(all_values):
         continue
 
     # we want to always go to one of the valves that is closed
     distance_to_all_from_current = distance_to_all(current)
-    for valve in closed:
+    for valve in all_values - open:
         time_to_get_there = distance_to_all_from_current[valve]
 
         new_time = time + time_to_get_there + 1  # the +1 is the time to open it
@@ -351,7 +351,7 @@ while q:
                 valve,
                 new_time,
                 new_pressure,
-                closed.difference({valve}),
+                open.union({valve}),
             )
         )
 
@@ -360,9 +360,26 @@ while q:
 
 # print()
 ic(ops)
-print(best)
-#
 
 
-# We have 2 cursors basically
-#
+best = 0
+best_state = None
+
+for k1 in tqdm(most_released_for_opening):
+    for k2 in most_released_for_opening:
+        ops += 1
+        if ops % 10000 == 0:
+            ic(ops, best, best_state)
+        k1s = set(k1)
+        k2s = set(k2)
+        if len(k1s.intersection(k2s)) == 0:
+            if most_released_for_opening[k1] + most_released_for_opening[k2] > best:
+                best = most_released_for_opening[k1] + most_released_for_opening[k2]
+                best_state = (k1, k2)
+
+ic(best)
+ic(best_state)
+
+
+# The elephant opens
+# DD, HH, EE
