@@ -56,7 +56,12 @@ def solve(x):
             if cell in to_ingore:
                 continue
 
-            print("FOUND SYMBOL", cell, "at", i, j)
+            this_cell_numbers = []
+            added = set()
+
+            # print("FOUND SYMBOL", cell, "at", i, j)
+            if cell != "*":
+                continue
 
             deltas = [1, 0, -1]
 
@@ -74,7 +79,7 @@ def solve(x):
                         continue
 
                     if data[x][y] in "0123456789":
-                        print("FOUND DIGIT", data[x][y], "at", x, y)
+                        # print("FOUND DIGIT", data[x][y], "at", x, y)
 
                         # since we have a single digit, we need to find the whole number
                         # we only need to check lefts/rights of this digit
@@ -93,14 +98,17 @@ def solve(x):
                         # we have the number
                         num = int("".join(data[x][start + 1 : end]))
 
-                        print("FOUND NUMBER", num, "at", x, start, end)
+                        # print("FOUND NUMBER", num, "at", x, start, end)
 
-                        numbers.append(num)
+                        this_cell_numbers.append(num)
 
                         for k in range(start, end):
                             added.add((x, k))
 
-    print(numbers)
+            if len(this_cell_numbers) == 2:
+                numbers.append(this_cell_numbers[0] * this_cell_numbers[1])
+
+    # print(numbers)
     print(sum(numbers))
 
 
