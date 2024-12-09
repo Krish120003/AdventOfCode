@@ -46,6 +46,21 @@ print(s)
 files = dict(Counter(s))
 del files["."]
 
+s = list(s)
+# start = 0
+# end = len(s) - 1
+# while start < end:
+#     if s[start] == ".":
+#         # empty space, swap
+#         while s[end] == ".":
+#             end -= 1
+
+#         s[start], s[end] = s[end], s[start]
+#         start += 1
+#         end -= 1
+#     else:
+#         start += 1
+
 
 for key in sorted(files, key=lambda x: -int(x)):
     # find the first .
