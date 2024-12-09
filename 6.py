@@ -173,10 +173,10 @@ for i in range(len(grid)):
 print()
 
 inital_pos = guard_pos
-from tqdm import tqdm
+# from tqdm import tqdm
 
 looped = set()
-for i in tqdm(range(len(grid))):
+for i in range(len(grid)):
     for j in range(len(grid[i])):
         if grid[i][j] == ".":
             # ok wehat if we block this?
@@ -187,7 +187,7 @@ for i in tqdm(range(len(grid))):
             cdir = (-1, 0)
             while True:
                 x, y = guard_pos
-                tmp = (*guard_pos, cdir)
+                tmp = guard_pos + cdir
                 if tmp in walked:
                     looped.add((i, j))
                     break
@@ -197,7 +197,6 @@ for i in tqdm(range(len(grid))):
 
                 # if out of bounds
                 if nx < 0 or nx >= len(grid) or ny < 0 or ny >= len(grid[0]):
-                    # print("escaped")
                     break
 
                 # if wall
