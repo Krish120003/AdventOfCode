@@ -127,8 +127,10 @@ TEST3 = """
 <vv<<^^<<^^
 """
 
-x = TEST
-x = PROD
+x = TEST3
+# x = PROD
+
+
 x = x.strip()
 
 # Data in differnt formats for quick access
@@ -275,8 +277,8 @@ for move in tqdm(moves):
 
     grid = new_grid
 
-    # print_grid(grid)
-    # input()
+    print_grid(grid)
+    input()
 print()
 
 # for each box, get coords

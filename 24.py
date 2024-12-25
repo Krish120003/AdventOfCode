@@ -320,58 +320,39 @@ y25 AND x25 -> mnt
 nwf OR fvp -> pwc
 """
 
-TEST = """
-x00: 1
-x01: 0
-x02: 1
-x03: 1
-x04: 0
-y00: 1
-y01: 1
-y02: 1
-y03: 1
-y04: 1
+# 'bbh', 'bbw', 'bjj', 'bmt', 'bqv', 'brt', 'brw', 'bsn', 'bvk', 'cbq', 'cdr', 'cds', 'cgh', 'chk', 'cht', 'cjj', 'ckj', 'cqf', 'crq', 'csc', 'csp', 'cvd', 'cvh', 'cwh', 'cwm', 'dbp', 'dcr', 'dfd', 'djd', 'dpt', 'dpv', 'dvg', 'dvp', 'dws', 'fbq', 'fdv', 'fhw', 'fjp', 'fjq', 'fnf', 'fnw', 'fph', 'fqb', 'fqc', 'fqr', 'frt', 'gcd', 'gdq', 'gjp', 'gnj', 'hdr', 'hfw', 'hgs', 'hhc', 'hhh', 'hjc', 'hjh', 'hkc', 'hvm', 'jfh', 'jgh', 'jkk', 'jkm', 'jkv', 'jmk', 'jpn', 'jth', 'jwh', 'kdt', 'khg', 'kjs', 'kmg', 'kmw', 'knv', 'kpd', 'kqd', 'ktr', 'kwk', 'mck', 'mdn', 'mjq', 'mkq', 'mnt', 'mnv', 'nfd', 'ngh', 'njb', 'njs', 'nmf', 'npm', 'npt', 'ntn', 'nwp', 'pfs', 'pgn', 'pjg', 'ppk', 'pvb', 'pvd', 'pvq', 'pwv', 'qcb', 'qcs', 'qdm', 'qdp', 'qfh', 'qgm', 'qgr', 'qhs', 'qrk', 'qwq', 'rcg', 'rds', 'rhc', 'rhf', 'rhn', 'rkd', 'sdc', 'sjc', 'sps', 'ssd', 'svw', 'tbh', 'tdd', 'tdf', 'tfd', 'tpd', 'tpn', 'tst', 'vdg', 'vdr', 'vfj', 'vgk', 'vhr', 'vhv', 'vmr', 'vsr', 'vtn', 'wbk', 'whw', 'wjn', 'wjp', 'wmk', 'wmq', 'wpn', 'wrh', 'wrs', 'wvk'
 
-ntg XOR fgs -> mjb
-y02 OR x01 -> tnw
-kwq OR kpj -> z05
-x00 OR x03 -> fst
-tgd XOR rvg -> z01
-vdt OR tnw -> bfw
-bfw AND frj -> z10
-ffh OR nrd -> bqk
-y00 AND y03 -> djm
-y03 OR y00 -> psh
-bqk OR frj -> z08
-tnw OR fst -> frj
-gnj AND tgd -> z11
-bfw XOR mjb -> z00
-x03 OR x00 -> vdt
-gnj AND wpb -> z02
-x04 AND y00 -> kjc
-djm OR pbm -> qhw
-nrd AND vdt -> hwm
-kjc AND fst -> rvg
-y04 OR y02 -> fgs
-y01 AND x02 -> pbm
-ntg OR kjc -> kwq
-psh XOR fgs -> tgd
-qhw XOR tgd -> z09
-pbm OR djm -> kpj
-x03 XOR y03 -> ffh
-x00 XOR y04 -> ntg
-bfw OR bqk -> z06
-nrd XOR fgs -> wpb
-frj XOR qhw -> z04
-bqk OR frj -> z07
-y03 OR x01 -> nrd
-hwm AND bqk -> z03
-tgd XOR rvg -> z12
-tnw OR pbm -> gnj
-"""
+rep1 = "z05"
+rep2 = "tst"
+
+PROD = PROD.replace("-> " + rep1, "-> " + "TEMP")
+PROD = PROD.replace("-> " + rep2, "-> " + rep1)
+PROD = PROD.replace("-> " + "TEMP", "-> " + rep2)
+
+rep1 = "z11"
+rep2 = "sps"
+
+PROD = PROD.replace("-> " + rep1, "-> " + "TEMP")
+PROD = PROD.replace("-> " + rep2, "-> " + rep1)
+PROD = PROD.replace("-> " + "TEMP", "-> " + rep2)
+
+rep1 = "z23"
+rep2 = "frt"
+
+PROD = PROD.replace("-> " + rep1, "-> " + "TEMP")
+PROD = PROD.replace("-> " + rep2, "-> " + rep1)
+PROD = PROD.replace("-> " + "TEMP", "-> " + rep2)
+
+# AAAAAA
+rep1 = "cgh"
+rep2 = "pmd"
+
+PROD = PROD.replace("-> " + rep1, "-> " + "TEMP")
+PROD = PROD.replace("-> " + rep2, "-> " + rep1)
+PROD = PROD.replace("-> " + "TEMP", "-> " + rep2)
 
 
-x = TEST
+# x = TEST
 x = PROD
 x = x.strip()
 
@@ -400,7 +381,7 @@ for bit in range(44):
         regs["y" + str(j).zfill(2)] = 0
 
     regs[f"x{str(bit).zfill(2)}"] = 1
-    # regs[f"y{bit:2}"] = 1
+    # regs[f"y{str(bit).zfill(2)}"] = 1
 
     executed = [False] * len(instructions)
 
