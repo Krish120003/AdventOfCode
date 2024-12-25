@@ -20,7 +20,7 @@ with open("in.txt") as f:
 # TEST = "11" * 11
 
 x = TEST
-x = PROD
+# x = PROD
 x = x.strip()
 
 # Data in differnt formats for quick access
@@ -84,7 +84,7 @@ for key in sorted(files, key=lambda x: -int(x)):
 
 
 # print("".join(s))
-# print(s)
+print(s)
 
 
 checksum = 0
