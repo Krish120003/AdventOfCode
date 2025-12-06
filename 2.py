@@ -3,6 +3,7 @@ import math
 from collections import * 
 from itertools import * 
 from heapq import * 
+
 from tqdm import tqdm
 import re
 
@@ -40,21 +41,24 @@ for r in ranges:
         length = len(id_str)
         
         found_invalid = False
-        for size in range(1, length + 1):
-            # can we break it?
-            if length % size != 0:
-                continue
-            substrings = [id_str[i:i+size] for i in range(0, length, size)]
-            ### MUST DO OR BUGGY WITH NUM LENGTH 2 ?????
-            if len(substrings) <= 1:
-                continue
-            if all(sub == substrings[0] for sub in substrings):
-                print("invalid id", id_num, "sz", size, "range", r)
-                invalid_ids.append(id_num)
-                found_invalid = True
-                break
+        found_invalid = re.match(r'^(\d+)\1+$', id_str) is not None
+
+        # for size in range(1, length + 1):
+        #     # can we break it?
+        #     if length % size != 0:
+        #         continue
+        #     substrings = [id_str[i:i+size] for i in range(0, length, size)]
+        #     ### MUST DO OR BUGGY WITH NUM LENGTH 2 ?????
+        #     if len(substrings) <= 1:
+        #         continue
+        #     if all(sub == substrings[0] for sub in substrings):
+        #         print("invalid id", id_num, "sz", size, "range", r)
+        #         invalid_ids.append(id_num)
+        #         found_invalid = True
+        #         break
 
         if found_invalid:
+            invalid_ids.append(id_num)
             continue
 
 result += sum(invalid_ids)
