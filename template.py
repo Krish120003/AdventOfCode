@@ -15,7 +15,7 @@ PROD = """
 
 x = TEST
 # x = PROD
-x = x.strip()
+x = x.strip("\n")
 
 # Data in differnt formats for quick access
 text = x
